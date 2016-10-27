@@ -1,0 +1,231 @@
+import java.awt.EventQueue;
+import java.awt.TextField;
+
+import javax.swing.JFrame;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+
+public class GUI {
+
+	private JFrame frame;
+	private JTextField textField;
+
+	/**
+	 * Launch the application.
+	 */
+	//public static void main(String[] args) {
+	public void call(){
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					GUI window = new GUI();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Create the application.
+	 */
+	public GUI() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 274);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		textField = new JTextField();
+		textField.setBounds(72, 30, 334, 20);
+		frame.getContentPane().add(textField);
+		textField.setColumns(10);
+		
+		
+		
+		JButton btnNewButton_1 = new JButton("Extract");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                String file = textField.getText();
+                int c;
+    	    	char ch;
+    	    	FileReader from = null;
+    	    	tag obj = new tag();
+    	    	int Increase = 0 , IncreasePosition = 0;
+    	    	
+    			try{
+    				
+    			 from = new FileReader(file);	
+    			 int times = 1,index = 0;;
+    			 
+    			 tag object = new tag();
+    			 boolean check = false;
+    			 while((c =from.read()) != -1  )
+    			  {
+    				 check = false;
+    				 //System.out.println((char)c);
+    				// if((char)c == ' ')continue;
+    				// if((char) c == '|') {check = true; continue;}
+    				if(times == 1)
+    				{
+    					object.SetPosition((char)c - '0');
+    					IncreasePosition = ((char)c - '0'); 
+    				}
+    				
+    				else if(times == 2)
+    				{
+    					//if(check){
+    					object.SetLength((char)c - '0');
+    					Increase = (char)c - '0';
+    					}
+    				//	else
+    				//	{
+    				//		IncreasePosition =  IncreasePosition*10 + ((char)c - '0');
+    			//			object.SetPosition(IncreasePosition);
+       			//			times--;
+    				//	}
+    			//	}
+    				
+    				else if(times == 3)
+    				{
+    			      ch = Character.valueOf((char) c);
+    			      if((int)ch == 48 ||(int)ch == 49||(int)ch ==50||(int)ch == 51||ch == 52||(int)ch == 53||(int)ch ==54 ||(int)ch == 55||(int)ch == 56 ||(int) ch ==579)
+    			      {
+    			    	  object.SetLength((Increase*10) +(ch - '0'));
+    			    	  times--;
+    			      }
+    			      else
+    			      object.SetSymbol(ch);
+    				}
+    				
+    				if(times == 3) {
+    				 obj.Decompress(object);
+    				//System.out.println(object.GetPosition()+ " "+ object.GetLength()+" "+object.GetSymbol());
+    				times = 0;
+    				}
+                    index++;
+    				times++;
+    			  }
+    			} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} 
+    			catch (IOException e1) {
+					JOptionPane.showMessageDialog(null, "Error");
+				} 
+    			
+    		    finally {
+    		         if (from != null) {
+    		             try {
+							from.close();
+						} catch (IOException e1) {
+							 // e1.printStackTrace();
+							JOptionPane.showMessageDialog(null, "Error");
+						}
+    		           }
+    		     }
+    	    try {
+    			FileWriter to = new FileWriter("Envoked.txt");
+    			Writer out  = new BufferedWriter(to);
+    			out.write(obj.GetString());
+    		    out.close();
+    		    JOptionPane.showMessageDialog(null, "Done");
+    		  }
+    		catch (Exception e1)
+    		{
+    			System.out.println("Can't Open the file");
+    		}
+                
+			}
+		});
+		btnNewButton_1.setBounds(274, 162, 132, 53);
+		frame.getContentPane().add(btnNewButton_1);
+		
+		
+		
+		JButton btnNewButton_2 = new JButton("Compress");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String file = textField.getText();
+				String word = new String();
+			    int C;
+			    char ch;
+			    FileReader from = null;
+				try{
+				 from = new FileReader(file);
+				 while((C=from.read()) != -1)
+				  {
+				    ch = (char)C;
+				    word+= ch;
+				  }
+			     } catch (FileNotFoundException e) {
+			    	 JOptionPane.showMessageDialog(null, "File Not Found");				
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Error");
+					//e.printStackTrace();
+				}finally {
+			         if (from != null) {
+			             try {
+							from.close();
+						} catch (IOException e) {
+							JOptionPane.showMessageDialog(null, "Error");
+						}
+			           }
+			     }
+				ArrayList <tag> tags = new ArrayList<tag>();
+				for (int i = 0 ; i < word.length();i++)
+				{
+					String temp = String.valueOf(word.charAt(i));
+					tag obj = new tag();
+				    obj.Compress(word,temp,i );
+				    tags.add(obj);	
+				    i+= obj.GetLength() ;
+				}
+				
+				try {
+					FileWriter to = new FileWriter("Compress.txt");
+					Writer outfile  = new BufferedWriter(to);
+				for(int i = 0 ; i < tags.size() ; i++)
+				{
+		          outfile.write(tags.get(i).GetPosition()+"");
+		          outfile.write(tags.get(i).GetLength()+"");
+		          outfile.write(tags.get(i).GetSymbol()+"");
+				}
+				outfile.close();
+				JOptionPane.showMessageDialog(null, "Done");
+				}
+				catch (Exception e)
+				{
+				 JOptionPane.showMessageDialog(null, "Error");
+				}
+			}
+		});
+		
+		btnNewButton_2.setBounds(22, 162, 126, 53);
+		frame.getContentPane().add(btnNewButton_2);
+		
+		JLabel lblFileName = new JLabel("File Name");
+
+		
+		lblFileName.setBounds(22, 33, 46, 14);
+		frame.getContentPane().add(lblFileName);
+	}
+
+}
