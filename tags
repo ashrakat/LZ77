@@ -1,0 +1,88 @@
+import java.util.ArrayList;
+
+public class tag {
+
+	int position;
+	int length;
+	char Symbol;
+	int TempIndex = 0;
+	String Origin = new String();
+	public void SetPosition(int pos)
+	{
+	   this.position = pos;
+	}
+	public void SetLength(int len)
+	{
+		this.length = len;
+	}
+	public void SetSymbol(char sym)
+	{
+		this.Symbol = sym;
+	}
+	public int GetPosition()
+	{
+		return this.position;
+	}
+	public int GetLength()
+	{
+		return this.length;
+	}
+	public char GetSymbol()
+	{
+		return this.Symbol;
+	}
+	public void Compress(String Arr, String Next , int Index)
+	{
+      boolean finish = false;
+      boolean found = false;
+      TempIndex = 0;
+      while(!finish)
+      {
+    	  found = false;
+    	  if(Index >= Arr.length())break;
+    	  for(int i = Index  ; i >= 0 ; i--)
+    	  {
+    		  if(i - Next.length() >=0 && ( Arr.substring( i - Next.length(), i).equals(Next)))
+    		  {
+    			  TempIndex = Index - ( i - 1 ) ;
+    			  Index++;
+    			  if(Index<Arr.length())
+    			  Next+=Arr.charAt(Index);
+    			  
+    			  found = true;
+    			  break;
+    		  }
+    	  }
+    	  if(!found)
+    	  finish = true;
+      }
+     if(Index - TempIndex  <= 0 ) position  = 0 ;
+     else
+      position = TempIndex;
+    
+      length = Next.length() - 1;	  
+      Symbol = Next.charAt(Next.length() - 1);
+	}
+
+	public void Decompress(tag obj)
+	{
+		if(obj.GetPosition() == 0 )
+		{
+			Origin+= obj.GetSymbol();
+		}
+		else
+		{
+			//System.out.println(obj.GetLength());
+			for(int  i = 0 ; i < obj.GetLength(); i++)
+			{
+		      Origin+= Origin.charAt((Origin.length() - i ) - (obj.GetPosition() - i));	
+		     // System.out.println(Origin);
+			}
+			Origin+= obj.GetSymbol();
+		}
+	}
+	public String GetString()
+	{
+		return this.Origin;
+	}
+}
